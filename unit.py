@@ -4,6 +4,12 @@ class Unit:
         self.cost = cost
         self.traits = traits
 
+    def get_name(self):
+        return self.name
+
+    def get_cost(self):
+        return self.cost
+
 
     def __str__(self):
         return self.name
