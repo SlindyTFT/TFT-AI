@@ -15,6 +15,7 @@ class Player:
         if self.gold > unit.cost:
             if self._add_to_bench(unit) is None:
                 self.gold = self.gold - unit.cost
+                self.shop[position] = None
                 return unit
         return None
         
@@ -31,6 +32,9 @@ class Player:
                 self.shop[i] = None
                 return None
         return champion
+
+    def _set_gold(self, gold: int):
+        self.gold = gold
     
     def show_bench(self):
         return self.bench
