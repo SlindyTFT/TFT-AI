@@ -151,9 +151,9 @@ def move_item_to_unit(item_position : (int, int), unit_position : (int, int)):
     pyautogui.mouseUp(button = 'left')
     pyautogui.mouseUp(button = 'left')
 
-def move_unit_to_pos(unit_position, position : (int, int)):
-    if isinstance(unit_position, tuple):
-        x1, y1 = UNIT_BOARD_POSITION[unit_position[0]][unit_position[1]]
+def move_unit_to_pos(unit_position, position):
+    if type(unit_position) is int and type(position) is tuple:
+        x1, y1 = BENCH_POSITIONS[unit_position]
         pyautogui.moveTo(x1, y1)
         pyautogui.sleep(.05)
         pyautogui.doubleClick(button = 'left')
@@ -163,13 +163,33 @@ def move_unit_to_pos(unit_position, position : (int, int)):
         pyautogui.sleep(.05)
         pyautogui.mouseUp(button = 'left')
         pyautogui.mouseUp(button = 'left')
-    else:
-        x1, y1 = BENCH_POSITIONS[unit_position]
+    elif type(unit_position) is tuple and type(position) is tuple:
+        x1, y1 = UNIT_BOARD_POSITION[unit_position[0]][unit_position[1]]
         pyautogui.moveTo(x1, y1)
         pyautogui.sleep(.05)
         pyautogui.doubleClick(button='left')
         pyautogui.mouseDown(button='left')
         x2, y2 = UNIT_BOARD_POSITION[position[0]][position[1]]
+        pyautogui.moveTo(x2, y2)
+        pyautogui.sleep(.05)
+        pyautogui.mouseUp(button='left')
+    elif type(unit_position) is int and type(position) is int:
+        x1, y1 = BENCH_POSITIONS[unit_position]
+        pyautogui.moveTo(x1, y1)
+        pyautogui.sleep(.05)
+        pyautogui.doubleClick(button='left')
+        pyautogui.mouseDown(button='left')
+        x2, y2 = BENCH_POSITIONS[position]
+        pyautogui.moveTo(x2, y2)
+        pyautogui.sleep(.05)
+        pyautogui.mouseUp(button='left')
+    else:
+        x1, y1 = UNIT_BOARD_POSITION[unit_position[0]][unit_position[1]]
+        pyautogui.moveTo(x1, y1)
+        pyautogui.sleep(.05)
+        pyautogui.doubleClick(button='left')
+        pyautogui.mouseDown(button='left')
+        x2, y2 = BENCH_POSITIONS[position]
         pyautogui.moveTo(x2, y2)
         pyautogui.sleep(.05)
         pyautogui.mouseUp(button='left')

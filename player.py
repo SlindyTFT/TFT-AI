@@ -1,5 +1,6 @@
 import items
 from unit import Unit
+from units import UNIT_DICT
 from items import *
 from typing import Optional, List
 
@@ -84,7 +85,7 @@ class Player:
             "GoodforSomethingI": 3,
             "HealingOrbsI": 2,
             "IronAssets": 2,
-            "ItemGrabBagI": 0,
+            "ItemGrabBag": 0,
             "LategameSpecialist": 0,
             "LatentForge": 0,
             "LeapofFaith": 0,
@@ -105,7 +106,7 @@ class Player:
             "Recombobulator": 0,
             "RestartMission": 0,
             "RiskyMoves": 1,
-            "RollingForDaysI": 3,
+            "RollingForDaysI": 4,
             "SecondWindI": 2,
             "SilverDestiny": 0,
             "SilverDestinyt": 0,
@@ -122,6 +123,7 @@ class Player:
             "TitanicTitan": 3,
             "TwinGuardians": 0,
             "WaterAxiom": 0,
+            "WoodAxiom": 0,
             "Threes": 1,
             "AdvancedLoan": 2,
             "AdvancedLoant": 2,
@@ -174,7 +176,7 @@ class Player:
             "GoldDestiny": 0,
             "GoldDestinyt": 0,
             "Golemify": 0,
-            "HardBargain": 3,
+            "HardBargain": 4,
             "HealingOrbsII": 2,
             "HeartofSteel": 2,
             "HeavyIstheCrown": 2,
@@ -185,6 +187,7 @@ class Player:
             "HighVoltage": 1,
             "Hustler": 0,
             "IndecisionI": 0,
+            "Indecision": 0,
             "IndiscriminateKiller": 0,
             "InfinityProtection": 0,
             "IxtalExpeditionist": 0,
@@ -240,7 +243,7 @@ class Player:
             "ThornPlatedArmor": 0,
             "Timewinders": 0,
             "TonsofStats'": 0,
-            "TradeSector": 3,
+            "TradeSector": 4,
             "TreasureHunt": 3,
             "TrialsofTwilight": 0,
             "TrifectaI": 0,
@@ -302,7 +305,7 @@ class Player:
             "Pandora'sItemsIII": 0,
             "PrismaticDestiny": 0,
             "PrismaticDestinyt": 0,
-            "PrismaticTicket": 3,
+            "PrismaticTicket": 4,
             "RadiantRascal": 2,
             "RadiantRelics": 1,
             "Retribution": 0,
@@ -348,7 +351,6 @@ class Player:
             "VoidStaff",
             "BlueBuff"
         ]
-
         self.jarvan_items : list = [
             "BrambleVest",
             "SunfireCape",
@@ -363,7 +365,6 @@ class Player:
             "IonicSpark",
             "AdaptiveHelm",
         ]
-
         self.num_sona_items = 0
         self.num_jarvan_items = 0
         self.core_items = [key for key,value in self.item_priority.items() if value == 2]
@@ -379,6 +380,7 @@ class Player:
             'Lux' : 3,
             'Galio' : 3,
             'Swain' : 3,
+            'Vayne' : 1,
             'Fiddlesticks' : 1,
             'Zilean' : 1
         }
@@ -538,7 +540,7 @@ class Player:
     def show_gold(self):
         return self.gold
 
-    def move_unit(self, pos, board: (int, int)):
+    def move_unit(self, pos, board):
         if type(pos) is int and type(board) is tuple:
             unit = self.bench[pos]
             if unit is not None:
@@ -550,7 +552,8 @@ class Player:
                     if self.level > self.units_on_board:
                         self.board[board[0]][board[1]] = unit
                         self.bench[pos] = None
-                        self.units_on_board += 1
+                        if unit is not None:
+                            self.units_on_board += 1
                         print(self.bench)
                     else:
                         print("Too Many Units")
@@ -576,7 +579,6 @@ class Player:
                 elif self.bench[board] is None:
                     self.bench[board] = unit
                     self.bench[pos] = None
-                    self.units_on_board += 1
                     print(self.bench)
 
         else:
@@ -592,6 +594,7 @@ class Player:
                     self.units_on_board -= 1
 
     def check_positioning(self):
+        actions_list = []
         jarvans = []
         if self.level >= 1:
             if self.board[0][3] is not None:
@@ -615,6 +618,38 @@ class Player:
                     if self.bench[pos] is not None:
                         if self.bench[pos].get_name() == 'Jarvan IV':
                             jarvans.append(pos)
+        if len(jarvans) > 0:
+            if self.level > self.units_on_board or type(jarvans[0]) is tuple:
+                pass
+            else:
+                if self.board[3][0] is not None and self.board[3][0].get_name() != 'Sona':
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,0), first_bench_pos[0])
+                    actions_list.append(((3,0), first_bench_pos[0]))
+                    # pyautogui.moveTo(UNIT_BOARD_POSITION[3][0])
+                    # pdi.keyDown('w')
+                    # pdi.keyUp('w')
+                elif self.board[3][1] is not None and self.board[3][1].get_name() != 'Bard':
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,1), first_bench_pos[0])
+                    actions_list.append(((3,1), first_bench_pos[0]))
+                    # pyautogui.moveTo(UNIT_BOARD_POSITION[3][1])
+                    # pdi.keyDown('w')
+                    # pdi.keyUp('w')
+                elif self.board[3][2] is not None:
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,2), first_bench_pos[0])
+                    actions_list.append(((3, 2), first_bench_pos[0]))
+                    # pyautogui.moveTo(UNIT_BOARD_POSITION[3][2])
+                    # pdi.keyDown('w')
+                    # pdi.keyUp('w')
+                elif self.board[3][3] is not None:
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,3), first_bench_pos[0])
+                    actions_list.append(((3, 3), first_bench_pos[0]))
+            # actions.move_unit_to_pos(jarvans[0], (0,3))
+            self.move_unit(jarvans[0], (0, 3))
+            actions_list.append((jarvans[0], (0, 3)))
         sonas = []
         if self.level >= 2:
             if self.board[3][0] is not None:
@@ -638,6 +673,38 @@ class Player:
                     if self.bench[pos] is not None:
                         if self.bench[pos].get_name() == 'Sona':
                             sonas.append(pos)
+        if len(sonas) > 0:
+            if self.level > self.units_on_board or type(sonas[0]) is tuple:
+                pass
+            else:
+                if self.board[3][0] is not None and self.board[3][0].get_name() != 'Sona':
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,0), first_bench_pos[0])
+                    actions_list.append(((3,0), first_bench_pos[0]))
+                    # pyautogui.moveTo(UNIT_BOARD_POSITION[3][0])
+                    # pdi.keyDown('w')
+                    # pdi.keyUp('w')
+                elif self.board[3][1] is not None and self.board[3][1].get_name() != 'Bard':
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,1), first_bench_pos[0])
+                    actions_list.append(((3,1), first_bench_pos[0]))
+                    # pyautogui.moveTo(UNIT_BOARD_POSITION[3][1])
+                    # pdi.keyDown('w')
+                    # pdi.keyUp('w')
+                elif self.board[3][2] is not None:
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,2), first_bench_pos[0])
+                    actions_list.append(((3, 2), first_bench_pos[0]))
+                    # pyautogui.moveTo(UNIT_BOARD_POSITION[3][2])
+                    # pdi.keyDown('w')
+                    # pdi.keyUp('w')
+                elif self.board[3][3] is not None:
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,3), first_bench_pos[0])
+                    actions_list.append(((3, 3), first_bench_pos[0]))
+            # actions.move_unit_to_pos(sonas[0], (0,3))
+            self.move_unit(sonas[0], (3, 0))
+            actions_list.append((sonas[0], (3, 0)))
         xins = []
         if self.level >= 3:
             if self.board[0][2] is not None:
@@ -657,10 +724,46 @@ class Player:
                         if self.board[row][col] is not None:
                             if self.board[row][col].get_name() == 'Xin Zhao':
                                 xins.append((row, col))
-                    for pos in range(len(self.bench)):
-                        if self.bench[pos] is not None:
-                            if self.bench[pos].get_name() == 'Xin Zhao':
-                                xins.append(pos)
+                for pos in range(len(self.bench)):
+                    if self.bench[pos] is not None:
+                        if self.bench[pos].get_name() == 'Xin Zhao':
+                            print('here')
+                            xins.append(pos)
+        if len(xins) > 0:
+            if self.level > self.units_on_board or type(xins[0]) is tuple:
+                pass
+            else:
+                print('found xin')
+                print(self.board[3])
+                if self.board[3][0] is not None and self.board[3][0].get_name() != 'Sona':
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,0), first_bench_pos[0])
+                    actions_list.append(((3,0), first_bench_pos[0]))
+                    # pyautogui.moveTo(UNIT_BOARD_POSITION[3][0])
+                    # pdi.keyDown('w')
+                    # pdi.keyUp('w')
+                elif self.board[3][1] is not None and self.board[3][1].get_name() != 'Bard':
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,1), first_bench_pos[0])
+                    actions_list.append(((3,1), first_bench_pos[0]))
+                    # pyautogui.moveTo(UNIT_BOARD_POSITION[3][1])
+                    # pdi.keyDown('w')
+                    # pdi.keyUp('w')
+                elif self.board[3][2] is not None:
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,2), first_bench_pos[0])
+                    actions_list.append(((3, 2), first_bench_pos[0]))
+                    # pyautogui.moveTo(UNIT_BOARD_POSITION[3][2])
+                    # pdi.keyDown('w')
+                    # pdi.keyUp('w')
+                elif self.board[3][3] is not None:
+                    print('found her')
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,3), first_bench_pos[0])
+                    actions_list.append(((3, 3), first_bench_pos[0]))
+            # actions.move_unit_to_pos(xins[0], (0,3))
+            self.move_unit(xins[0], (0, 2))
+            actions_list.append((xins[0], (0, 2)))
         bard = []
         if self.level >= 4:
             if self.board[3][1] is not None:
@@ -684,7 +787,514 @@ class Player:
                         if self.bench[pos] is not None:
                             if self.bench[pos].get_name() == 'Bard':
                                 bard.append(pos)
-        return jarvans, sonas, xins, bard
+        if len(bard) > 0:
+            if self.level > self.units_on_board or type(bard[0]) is tuple:
+                pass
+            else:
+                if self.board[3][0] is not None and self.board[3][0].get_name() != 'Sona':
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,0), first_bench_pos[0])
+                    actions_list.append(((3,0), first_bench_pos[0]))
+                    # pyautogui.moveTo(UNIT_BOARD_POSITION[3][0])
+                    # pdi.keyDown('w')
+                    # pdi.keyUp('w')
+                elif self.board[3][1] is not None and self.board[3][1].get_name() != 'Bard':
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,1), first_bench_pos[0])
+                    actions_list.append(((3,1), first_bench_pos[0]))
+                    # pyautogui.moveTo(UNIT_BOARD_POSITION[3][1])
+                    # pdi.keyDown('w')
+                    # pdi.keyUp('w')
+                elif self.board[3][2] is not None:
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,2), first_bench_pos[0])
+                    actions_list.append(((3, 2), first_bench_pos[0]))
+                    # pyautogui.moveTo(UNIT_BOARD_POSITION[3][2])
+                    # pdi.keyDown('w')
+                    # pdi.keyUp('w')
+                elif self.board[3][3] is not None:
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,3), first_bench_pos[0])
+                    actions_list.append(((3, 3), first_bench_pos[0]))
+            # actions.move_unit_to_pos(bard[0], (0,3))
+            self.move_unit(bard[0], (3, 1))
+            actions_list.append((bard[0], (3, 1)))
+        poppies = []
+        if self.level >= 5:
+            if self.board[0][1] is not None:
+                if self.board[0][1].get_name() != 'Poppy':
+                    for row in range(len(self.board)):
+                        for col in range(len(self.board[row])):
+                            if self.board[row][col] is not None:
+                                if self.board[row][col].get_name() == 'Poppy':
+                                    poppies.append((row, col))
+                    for pos in range(len(self.bench)):
+                        if self.bench[pos] is not None:
+                            if self.bench[pos].get_name() == 'Poppy':
+                                poppies.append(pos)
+            else:
+                for row in range(len(self.board)):
+                    for col in range(len(self.board[row])):
+                        if self.board[row][col] is not None:
+                            if self.board[row][col].get_name() == 'Poppy':
+                                poppies.append((row, col))
+                    for pos in range(len(self.bench)):
+                        if self.bench[pos] is not None:
+                            if self.bench[pos].get_name() == 'Poppy':
+                                poppies.append(pos)
+        if len(poppies) > 0:
+            if self.level > self.units_on_board or type(poppies[0]) is tuple:
+                pass
+            else:
+                if self.board[3][0] is not None and self.board[3][0].get_name() != 'Sona':
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,0), first_bench_pos[0])
+                    actions_list.append(((3,0), first_bench_pos[0]))
+                    # pyautogui.moveTo(UNIT_BOARD_POSITION[3][0])
+                    # pdi.keyDown('w')
+                    # pdi.keyUp('w')
+                elif self.board[3][1] is not None and self.board[3][1].get_name() != 'Bard':
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,1), first_bench_pos[0])
+                    actions_list.append(((3,1), first_bench_pos[0]))
+                    # pyautogui.moveTo(UNIT_BOARD_POSITION[3][1])
+                    # pdi.keyDown('w')
+                    # pdi.keyUp('w')
+                elif self.board[3][2] is not None and self.board[3][2].get_name() != 'Lux':
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,2), first_bench_pos[0])
+                    actions_list.append(((3, 2), first_bench_pos[0]))
+                    # pyautogui.moveTo(UNIT_BOARD_POSITION[3][2])
+                    # pdi.keyDown('w')
+                    # pdi.keyUp('w')
+                elif self.board[3][3] is not None and self.board[3][3].get_name() != 'Vayne':
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,3), first_bench_pos[0])
+                    actions_list.append(((3, 3), first_bench_pos[0]))
+                elif self.board[3][4] is not None:
+                    first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                    self.move_unit((3,4), first_bench_pos[0])
+                    actions_list.append(((3, 4), first_bench_pos[0]))
+            # actions.move_unit_to_pos(bard[0], (0,3))
+            self.move_unit(poppies[0], (0, 1))
+            actions_list.append((poppies[0], (0, 1)))
+        if self.level >= 6:
+            if self.count_of_champ(UNIT_DICT['Garen']) > 0 and self.count_of_champ(UNIT_DICT['Lux']) > 0:
+                ##remove Vayne from target_units
+                garens = []
+                if self.board[0][4] is not None:
+                    if self.board[0][4].get_name() != 'Garen':
+                        for row in range(len(self.board)):
+                            for col in range(len(self.board[row])):
+                                if self.board[row][col] is not None:
+                                    if self.board[row][col].get_name() == 'Garen':
+                                        garens.append((row, col))
+                        for pos in range(len(self.bench)):
+                            if self.bench[pos] is not None:
+                                if self.bench[pos].get_name() == 'Garen':
+                                    garens.append(pos)
+                else:
+                    for row in range(len(self.board)):
+                        for col in range(len(self.board[row])):
+                            if self.board[row][col] is not None:
+                                if self.board[row][col].get_name() == 'Garen':
+                                    garens.append((row, col))
+                        for pos in range(len(self.bench)):
+                            if self.bench[pos] is not None:
+                                if self.bench[pos].get_name() == 'Garen':
+                                    garens.append(pos)
+                if len(garens) > 0:
+                    if self.level > self.units_on_board or type(garens[0]) is tuple:
+                        pass
+                    else:
+                        if self.board[3][0] is not None and self.board[3][0].get_name() != 'Sona':
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3, 0), first_bench_pos[0])
+                            actions_list.append(((3, 0), first_bench_pos[0]))
+                            # pyautogui.moveTo(UNIT_BOARD_POSITION[3][0])
+                            # pdi.keyDown('w')
+                            # pdi.keyUp('w')
+                        elif self.board[3][1] is not None and self.board[3][1].get_name() != 'Bard':
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3, 1), first_bench_pos[0])
+                            actions_list.append(((3, 1), first_bench_pos[0]))
+                            # pyautogui.moveTo(UNIT_BOARD_POSITION[3][1])
+                            # pdi.keyDown('w')
+                            # pdi.keyUp('w')
+                        elif self.board[3][2] is not None and self.board[3][2].get_name() != 'Lux':
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3, 2), first_bench_pos[0])
+                            actions_list.append(((3, 2), first_bench_pos[0]))
+                            # pyautogui.moveTo(UNIT_BOARD_POSITION[3][2])
+                            # pdi.keyDown('w')
+                            # pdi.keyUp('w')
+                        elif self.board[3][3] is not None:
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3, 3), first_bench_pos[0])
+                            actions_list.append(((3, 3), first_bench_pos[0]))
+                        elif self.board[3][4] is not None:
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3, 4), first_bench_pos[0])
+                            actions_list.append(((3, 4), first_bench_pos[0]))
+                    # actions.move_unit_to_pos(bard[0], (0,3))
+                    self.move_unit(garens[0], (0, 4))
+                    actions_list.append((garens[0], (0, 4)))
+                if self.level >= 7:
+                    luxs = []
+                    if self.board[3][2] is not None:
+                        if self.board[3][2].get_name() != 'Lux':
+                            for row in range(len(self.board)):
+                                for col in range(len(self.board[row])):
+                                    if self.board[row][col] is not None:
+                                        if self.board[row][col].get_name() == 'Lux':
+                                            luxs.append((row, col))
+                            for pos in range(len(self.bench)):
+                                if self.bench[pos] is not None:
+                                    if self.bench[pos].get_name() == 'Lux':
+                                        luxs.append(pos)
+                    else:
+                        for row in range(len(self.board)):
+                            for col in range(len(self.board[row])):
+                                if self.board[row][col] is not None:
+                                    if self.board[row][col].get_name() == 'Lux':
+                                        luxs.append((row, col))
+                            for pos in range(len(self.bench)):
+                                if self.bench[pos] is not None:
+                                    if self.bench[pos].get_name() == 'Lux':
+                                        luxs.append(pos)
+                    if len(luxs) > 0:
+                        if self.level > self.units_on_board or type(luxs[0]) is tuple:
+                            pass
+                        else:
+                            if self.board[3][0] is not None and self.board[3][0].get_name() != 'Sona':
+                                first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                                self.move_unit((3, 0), first_bench_pos[0])
+                                actions_list.append(((3, 0), first_bench_pos[0]))
+                                # pyautogui.moveTo(UNIT_BOARD_POSITION[3][0])
+                                # pdi.keyDown('w')
+                                # pdi.keyUp('w')
+                            elif self.board[3][1] is not None and self.board[3][1].get_name() != 'Bard':
+                                first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                                self.move_unit((3, 1), first_bench_pos[0])
+                                actions_list.append(((3, 1), first_bench_pos[0]))
+                                # pyautogui.moveTo(UNIT_BOARD_POSITION[3][1])
+                                # pdi.keyDown('w')
+                                # pdi.keyUp('w')
+                            elif self.board[3][2] is not None and self.board[3][2].get_name() != 'Lux':
+                                first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                                self.move_unit((3, 2), first_bench_pos[0])
+                                actions_list.append(((3, 2), first_bench_pos[0]))
+                                # pyautogui.moveTo(UNIT_BOARD_POSITION[3][2])
+                                # pdi.keyDown('w')
+                                # pdi.keyUp('w')
+                            elif self.board[3][3] is not None:
+                                first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                                self.move_unit((3, 3), first_bench_pos[0])
+                                actions_list.append(((3, 3), first_bench_pos[0]))
+                            elif self.board[3][4] is not None:
+                                first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                                self.move_unit((3, 4), first_bench_pos[0])
+                                actions_list.append(((3, 4), first_bench_pos[0]))
+                        # actions.move_unit_to_pos(bard[0], (0,3))
+                        self.move_unit(luxs[0], (3, 2))
+                        actions_list.append((luxs[0], (3, 2)))
+            elif self.count_of_champ(UNIT_DICT['Garen']) > 0 and self.count_of_champ(UNIT_DICT['Lux']) == 0:
+                garens = []
+                if self.board[0][4] is not None:
+                    if self.board[0][4].get_name() != 'Garen':
+                        for row in range(len(self.board)):
+                            for col in range(len(self.board[row])):
+                                if self.board[row][col] is not None:
+                                    if self.board[row][col].get_name() == 'Garen':
+                                        garens.append((row, col))
+                        for pos in range(len(self.bench)):
+                            if self.bench[pos] is not None:
+                                if self.bench[pos].get_name() == 'Garen':
+                                    garens.append(pos)
+                else:
+                    for row in range(len(self.board)):
+                        for col in range(len(self.board[row])):
+                            if self.board[row][col] is not None:
+                                if self.board[row][col].get_name() == 'Garen':
+                                    garens.append((row, col))
+                        for pos in range(len(self.bench)):
+                            if self.bench[pos] is not None:
+                                if self.bench[pos].get_name() == 'Garen':
+                                    garens.append(pos)
+                if len(garens) > 0:
+                    if self.level > self.units_on_board or type(garens[0]) is tuple:
+                        pass
+                    else:
+                        if self.board[3][0] is not None and self.board[3][0].get_name() != 'Sona':
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3, 0), first_bench_pos[0])
+                            actions_list.append(((3, 0), first_bench_pos[0]))
+                            # pyautogui.moveTo(UNIT_BOARD_POSITION[3][0])
+                            # pdi.keyDown('w')
+                            # pdi.keyUp('w')
+                        elif self.board[3][1] is not None and self.board[3][1].get_name() != 'Bard':
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3, 1), first_bench_pos[0])
+                            actions_list.append(((3, 1), first_bench_pos[0]))
+                            # pyautogui.moveTo(UNIT_BOARD_POSITION[3][1])
+                            # pdi.keyDown('w')
+                            # pdi.keyUp('w')
+                        elif self.board[3][2] is not None and self.board[3][2].get_name() != 'Lux':
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3, 2), first_bench_pos[0])
+                            actions_list.append(((3, 2), first_bench_pos[0]))
+                            # pyautogui.moveTo(UNIT_BOARD_POSITION[3][2])
+                            # pdi.keyDown('w')
+                            # pdi.keyUp('w')
+                        elif self.board[3][3] is not None:
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3, 3), first_bench_pos[0])
+                            actions_list.append(((3, 3), first_bench_pos[0]))
+                        elif self.board[3][4] is not None:
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3, 4), first_bench_pos[0])
+                            actions_list.append(((3, 4), first_bench_pos[0]))
+                    # actions.move_unit_to_pos(bard[0], (0,3))
+                    self.move_unit(garens[0], (0, 1))
+                    actions_list.append((garens[0], (0, 1)))
+                if self.level >= 7:
+                    vaynes = []
+                    if self.board[3][3] is not None:
+                        if self.board[3][3].get_name() != 'Vayne':
+                            for row in range(len(self.board)):
+                                for col in range(len(self.board[row])):
+                                    if self.board[row][col] is not None:
+                                        if self.board[row][col].get_name() == 'Vayne':
+                                            vaynes.append((row, col))
+                            for pos in range(len(self.bench)):
+                                if self.bench[pos] is not None:
+                                    if self.bench[pos].get_name() == 'Vayne':
+                                        vaynes.append(pos)
+                    else:
+                        for row in range(len(self.board)):
+                            for col in range(len(self.board[row])):
+                                if self.board[row][col] is not None:
+                                    if self.board[row][col].get_name() == 'Vayne':
+                                        vaynes.append((row, col))
+                            for pos in range(len(self.bench)):
+                                if self.bench[pos] is not None:
+                                    if self.bench[pos].get_name() == 'Vayne':
+                                        vaynes.append(pos)
+                    if len(vaynes) > 0:
+                        if self.level > self.units_on_board or type(vaynes[0]) is tuple:
+                            pass
+                        else:
+                            if self.board[3][0] is not None and self.board[3][0].get_name() != 'Sona':
+                                first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                                self.move_unit((3, 0), first_bench_pos[0])
+                                actions_list.append(((3, 0), first_bench_pos[0]))
+                                # pyautogui.moveTo(UNIT_BOARD_POSITION[3][0])
+                                # pdi.keyDown('w')
+                                # pdi.keyUp('w')
+                            elif self.board[3][1] is not None and self.board[3][1].get_name() != 'Bard':
+                                first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                                self.move_unit((3, 1), first_bench_pos[0])
+                                actions_list.append(((3, 1), first_bench_pos[0]))
+                                # pyautogui.moveTo(UNIT_BOARD_POSITION[3][1])
+                                # pdi.keyDown('w')
+                                # pdi.keyUp('w')
+                            elif self.board[3][2] is not None and self.board[3][2].get_name() != 'Lux':
+                                first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                                self.move_unit((3, 2), first_bench_pos[0])
+                                actions_list.append(((3, 2), first_bench_pos[0]))
+                                # pyautogui.moveTo(UNIT_BOARD_POSITION[3][2])
+                                # pdi.keyDown('w')
+                                # pdi.keyUp('w')
+                            elif self.board[3][3] is not None and self.board[3][3].get_name() != 'Vayne':
+                                first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                                self.move_unit((3, 3), first_bench_pos[0])
+                                actions_list.append(((3, 3), first_bench_pos[0]))
+                            elif self.board[3][4] is not None:
+                                first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                                self.move_unit((3, 4), first_bench_pos[0])
+                                actions_list.append(((3, 4), first_bench_pos[0]))
+                        # actions.move_unit_to_pos(bard[0], (0,3))
+                        self.move_unit(vaynes[0], (3, 3))
+                        actions_list.append((vaynes[0], (3, 3)))
+            elif self.count_of_champ(UNIT_DICT['Garen']) == 0 and self.count_of_champ(UNIT_DICT['Lux']) > 0:
+                luxs = []
+                if self.board[3][2] is not None:
+                    if self.board[3][2].get_name() != 'Lux':
+                        for row in range(len(self.board)):
+                            for col in range(len(self.board[row])):
+                                if self.board[row][col] is not None:
+                                    if self.board[row][col].get_name() == 'Lux':
+                                        luxs.append((row, col))
+                        for pos in range(len(self.bench)):
+                            if self.bench[pos] is not None:
+                                if self.bench[pos].get_name() == 'Lux':
+                                    luxs.append(pos)
+                else:
+                    for row in range(len(self.board)):
+                        for col in range(len(self.board[row])):
+                            if self.board[row][col] is not None:
+                                if self.board[row][col].get_name() == 'Lux':
+                                    luxs.append((row, col))
+                        for pos in range(len(self.bench)):
+                            if self.bench[pos] is not None:
+                                if self.bench[pos].get_name() == 'Lux':
+                                    luxs.append(pos)
+                if len(luxs) > 0:
+                    if self.level > self.units_on_board or type(luxs[0]) is tuple:
+                        pass
+                    else:
+                        if self.board[3][0] is not None and self.board[3][0].get_name() != 'Sona':
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3, 0), first_bench_pos[0])
+                            actions_list.append(((3, 0), first_bench_pos[0]))
+                            # pyautogui.moveTo(UNIT_BOARD_POSITION[3][0])
+                            # pdi.keyDown('w')
+                            # pdi.keyUp('w')
+                        elif self.board[3][1] is not None and self.board[3][1].get_name() != 'Bard':
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3, 1), first_bench_pos[0])
+                            actions_list.append(((3, 1), first_bench_pos[0]))
+                            # pyautogui.moveTo(UNIT_BOARD_POSITION[3][1])
+                            # pdi.keyDown('w')
+                            # pdi.keyUp('w')
+                        elif self.board[3][2] is not None and self.board[3][2].get_name() != 'Lux':
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3, 2), first_bench_pos[0])
+                            actions_list.append(((3, 2), first_bench_pos[0]))
+                            # pyautogui.moveTo(UNIT_BOARD_POSITION[3][2])
+                            # pdi.keyDown('w')
+                            # pdi.keyUp('w')
+                        elif self.board[3][3] is not None:
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3, 3), first_bench_pos[0])
+                            actions_list.append(((3, 3), first_bench_pos[0]))
+                        elif self.board[3][4] is not None:
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3, 4), first_bench_pos[0])
+                            actions_list.append(((3, 4), first_bench_pos[0]))
+                    # actions.move_unit_to_pos(bard[0], (0,3))
+                    self.move_unit(luxs[0], (3, 2))
+                    actions_list.append((luxs[0], (3, 2)))
+                if self.level >= 7:
+                    vaynes = []
+                    if self.board[3][3] is not None:
+                        if self.board[3][3].get_name() != 'Vayne':
+                            for row in range(len(self.board)):
+                                for col in range(len(self.board[row])):
+                                    if self.board[row][col] is not None:
+                                        if self.board[row][col].get_name() == 'Vayne':
+                                            vaynes.append((row, col))
+                            for pos in range(len(self.bench)):
+                                if self.bench[pos] is not None:
+                                    if self.bench[pos].get_name() == 'Vayne':
+                                        vaynes.append(pos)
+                    else:
+                        for row in range(len(self.board)):
+                            for col in range(len(self.board[row])):
+                                if self.board[row][col] is not None:
+                                    if self.board[row][col].get_name() == 'Vayne':
+                                        vaynes.append((row, col))
+                            for pos in range(len(self.bench)):
+                                if self.bench[pos] is not None:
+                                    if self.bench[pos].get_name() == 'Vayne':
+                                        vaynes.append(pos)
+                    if len(vaynes) > 0:
+                        if self.level > self.units_on_board or type(vaynes[0]) is tuple:
+                            pass
+                        else:
+                            if self.board[3][0] is not None and self.board[3][0].get_name() != 'Sona':
+                                first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                                self.move_unit((3, 0), first_bench_pos[0])
+                                actions_list.append(((3, 0), first_bench_pos[0]))
+                                # pyautogui.moveTo(UNIT_BOARD_POSITION[3][0])
+                                # pdi.keyDown('w')
+                                # pdi.keyUp('w')
+                            elif self.board[3][1] is not None and self.board[3][1].get_name() != 'Bard':
+                                first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                                self.move_unit((3, 1), first_bench_pos[0])
+                                actions_list.append(((3, 1), first_bench_pos[0]))
+                                # pyautogui.moveTo(UNIT_BOARD_POSITION[3][1])
+                                # pdi.keyDown('w')
+                                # pdi.keyUp('w')
+                            elif self.board[3][2] is not None and self.board[3][2].get_name() != 'Lux':
+                                first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                                self.move_unit((3, 2), first_bench_pos[0])
+                                actions_list.append(((3, 2), first_bench_pos[0]))
+                                # pyautogui.moveTo(UNIT_BOARD_POSITION[3][2])
+                                # pdi.keyDown('w')
+                                # pdi.keyUp('w')
+                            elif self.board[3][3] is not None and self.board[3][3].get_name() != 'Vayne':
+                                first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                                self.move_unit((3, 3), first_bench_pos[0])
+                                actions_list.append(((3, 3), first_bench_pos[0]))
+                            elif self.board[3][4] is not None:
+                                first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                                self.move_unit((3, 4), first_bench_pos[0])
+                                actions_list.append(((3, 4), first_bench_pos[0]))
+                        # actions.move_unit_to_pos(bard[0], (0,3))
+                        self.move_unit(vaynes[0], (3, 3))
+                        actions_list.append((vaynes[0], (3, 3)))
+            else:
+                vaynes = []
+                if self.board[3][3] is not None:
+                    if self.board[3][3].get_name() != 'Vayne':
+                        for row in range(len(self.board)):
+                            for col in range(len(self.board[row])):
+                                if self.board[row][col] is not None:
+                                    if self.board[row][col].get_name() == 'Vayne':
+                                        vaynes.append((row, col))
+                        for pos in range(len(self.bench)):
+                            if self.bench[pos] is not None:
+                                if self.bench[pos].get_name() == 'Vayne':
+                                    vaynes.append(pos)
+                else:
+                    for row in range(len(self.board)):
+                        for col in range(len(self.board[row])):
+                            if self.board[row][col] is not None:
+                                if self.board[row][col].get_name() == 'Vayne':
+                                    vaynes.append((row, col))
+                        for pos in range(len(self.bench)):
+                            if self.bench[pos] is not None:
+                                if self.bench[pos].get_name() == 'Vayne':
+                                    vaynes.append(pos)
+                if len(vaynes) > 0:
+                    if self.level > self.units_on_board or type(vaynes[0]) is tuple:
+                        pass
+                    else:
+                        if self.board[3][0] is not None and self.board[3][0].get_name() != 'Sona':
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3,0), first_bench_pos[0])
+                            actions_list.append(((3,0), first_bench_pos[0]))
+                            # pyautogui.moveTo(UNIT_BOARD_POSITION[3][0])
+                            # pdi.keyDown('w')
+                            # pdi.keyUp('w')
+                        elif self.board[3][1] is not None and self.board[3][1].get_name() != 'Bard':
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3,1), first_bench_pos[0])
+                            actions_list.append(((3,1), first_bench_pos[0]))
+                            # pyautogui.moveTo(UNIT_BOARD_POSITION[3][1])
+                            # pdi.keyDown('w')
+                            # pdi.keyUp('w')
+                        elif self.board[3][2] is not None and self.board[3][2].get_name() != 'Lux':
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3,2), first_bench_pos[0])
+                            actions_list.append(((3, 2), first_bench_pos[0]))
+                            # pyautogui.moveTo(UNIT_BOARD_POSITION[3][2])
+                            # pdi.keyDown('w')
+                            # pdi.keyUp('w')
+                        elif self.board[3][3] is not None and self.board[3][3].get_name() != 'Vayne':
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3,3), first_bench_pos[0])
+                            actions_list.append(((3, 3), first_bench_pos[0]))
+                        elif self.board[3][4] is not None:
+                            first_bench_pos = [i for i in range(len(self.bench)) if self.bench[i] is None]
+                            self.move_unit((3,4), first_bench_pos[0])
+                            actions_list.append(((3, 4), first_bench_pos[0]))
+                    # actions.move_unit_to_pos(bard[0], (0,3))
+                    self.move_unit(vaynes[0], (3, 3))
+                    actions_list.append((vaynes[0], (3, 3)))
+        print(jarvans, sonas, xins, bard)
+        return actions_list
 
 
 
